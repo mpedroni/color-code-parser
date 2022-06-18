@@ -74,11 +74,6 @@ describe('Color parsing', () => {
       expect(gray.rgb()).toBe('rgb(34, 34, 34)');
       expect(blueOrGreenIdk.rgb()).toBe('rgb(12, 74, 110)');
     });
-
-    it('HEX', () => {
-      const white = Color.new('#fff');
-      expect(white.rgb()).toBe('rgb(255, 255, 255)');
-    });
   });
 
   describe('RGB to', () => {
