@@ -1,17 +1,17 @@
-interface ColorCodeValidator {
+interface ColorValidator {
   validate(colorCode: string): boolean;
 }
 
-class HexColorCodeValidator implements ColorCodeValidator {
+class HexColorValidator implements ColorValidator {
   validate(colorCode: string): boolean {
     colorCode = colorCode.replaceAll(' ', '');
-    const hexColorCodeRegex = /^#[Aa-fF0-9]{3,6}$/g;
+    const hexColorCodeRegex = /^#[a-f0-9]{3,6}$/gi;
 
     return !!colorCode.match(hexColorCodeRegex);
   }
 }
 
-class RgbColorCodeValidator implements ColorCodeValidator {
+class RgbColorValidator implements ColorValidator {
   validate(colorCode: string): boolean {
     colorCode = colorCode.replaceAll(' ', '');
 
@@ -31,8 +31,8 @@ class RgbColorCodeValidator implements ColorCodeValidator {
 }
 
 export class ColorBuilder {
-  private static hexValidator: ColorCodeValidator = new HexColorCodeValidator();
-  private static rgbValidator: ColorCodeValidator = new RgbColorCodeValidator();
+  private static hexValidator: ColorValidator = new HexColorValidator();
+  private static rgbValidator: ColorValidator = new RgbColorValidator();
 
   static build(colorCode: string): Color {
     if (ColorBuilder.hexValidator.validate(colorCode))
@@ -58,41 +58,53 @@ export abstract class Color {
   abstract rgb(): string;
 }
 
+type RgbComponents<T> = {
+  r: T;
+  g: T;
+  b: T;
+};
+
 class HexColor extends Color {
   constructor(colorCode: string) {
-    super(colorCode);
+    const parsedColorCode = colorCode.replace('#', '');
+    super(parsedColorCode);
   }
 
   rgb(): string {
-    const { r, g, b } = this.getRgbPortions();
-
-    return `rgb(${parseInt(r, 16)}, ${parseInt(g, 16)}, ${parseInt(b, 16)})`;
+    const { r, g, b } = this.getRgbColorComponentsInDecimal();
+    return `rgb(${r}, ${g}, ${b})`;
   }
 
-  private getRgbPortions(): { r: string; g: string; b: string } {
-    const colorCode = this.colorCode.replace('#', '');
-
-    if (colorCode.length === 3) {
-      const rgb = colorCode.match(/[a-f0-9]{1}/gi) as RegExpExecArray;
-
-      const [r, g, b] = rgb;
-
-      return {
-        r: r + r,
-        g: g + g,
-        b: b + b,
-      };
-    }
-
-    const rgb = colorCode.match(/[a-f0-9]{2}/gi) as RegExpExecArray;
-
-    const [r, g, b] = rgb;
+  private getRgbColorComponentsInDecimal(): RgbComponents<number> {
+    const { r, g, b } = this.getRgbComponentsInHex();
 
     return {
-      r,
-      g,
-      b,
+      r: this.hexToDecimal(r),
+      g: this.hexToDecimal(g),
+      b: this.hexToDecimal(b),
     };
+  }
+
+  private getRgbComponentsInHex(): RgbComponents<string> {
+    const pattern = this.isShortNotation() ? /[a-f0-9]{1}/gi : /[a-f0-9]{2}/gi;
+
+    const [r, g, b] = this.colorCode.match(pattern) as RegExpExecArray;
+
+    return this.isShortNotation()
+      ? {
+          r: r + r,
+          g: g + g,
+          b: b + b,
+        }
+      : { r, g, b };
+  }
+
+  private hexToDecimal(hex: string) {
+    return parseInt(hex, 16);
+  }
+
+  private isShortNotation(): boolean {
+    return this.colorCode.length === 3;
   }
 }
 
