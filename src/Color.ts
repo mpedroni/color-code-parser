@@ -11,76 +11,19 @@ class HexColorValidator implements ColorValidator {
   }
 }
 
-class RgbColorValidator implements ColorValidator {
-  validate(colorCode: string): boolean {
-    colorCode = colorCode.replaceAll(' ', '');
-
-    const hasRgbDelimiters = () => !!colorCode.match(/^rgb\(.+\)$/);
-    const hasExactlyThreePositiveNumbers = () =>
-      colorCode.match(/[(,][0-9]+/g)?.length === 3;
-    const hasExactlyThreeNumbersBetweenZeroAnd255 = () =>
-      colorCode.match(/\b([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\b/g)?.length ===
-      3;
-
-    return (
-      hasRgbDelimiters() &&
-      hasExactlyThreePositiveNumbers() &&
-      hasExactlyThreeNumbersBetweenZeroAnd255()
-    );
-  }
+interface ColorParser {
+  parse(colorCode: string): RgbComponents<number>;
 }
 
-export class ColorBuilder {
-  private static hexValidator: ColorValidator = new HexColorValidator();
-  private static rgbValidator: ColorValidator = new RgbColorValidator();
+class HexParser implements ColorParser {
+  private colorCode: string = '';
 
-  static build(colorCode: string): Color {
-    if (ColorBuilder.hexValidator.validate(colorCode))
-      return new HexColor(colorCode);
-    if (ColorBuilder.rgbValidator.validate(colorCode))
-      return new RgbColor(colorCode);
-
-    throw new Error(`Couldn't identify the type of color code '${colorCode}'`);
-  }
-}
-
-export abstract class Color {
-  protected colorCode: string;
-
-  constructor(colorCode: string) {
-    this.colorCode = colorCode;
+  parse(colorCode: string): RgbComponents<number> {
+    this.colorCode = colorCode.replace('#', '');
+    return this.getRgbComponentsInDecimal();
   }
 
-  static new(colorCode: string) {
-    return ColorBuilder.build(colorCode);
-  }
-
-  abstract rgb(): string;
-  abstract hex(): string;
-}
-
-type RgbComponents<T> = {
-  r: T;
-  g: T;
-  b: T;
-};
-
-class HexColor extends Color {
-  constructor(colorCode: string) {
-    const parsedColorCode = colorCode.replace('#', '');
-    super(parsedColorCode);
-  }
-
-  rgb(): string {
-    const { r, g, b } = this.getRgbColorComponentsInDecimal();
-    return `rgb(${r}, ${g}, ${b})`;
-  }
-
-  hex(): string {
-    return '#' + this.colorCode;
-  }
-
-  private getRgbColorComponentsInDecimal(): RgbComponents<number> {
+  private getRgbComponentsInDecimal(): RgbComponents<number> {
     const { r, g, b } = this.getRgbComponentsInHex();
 
     return {
@@ -113,23 +56,102 @@ class HexColor extends Color {
   }
 }
 
-class RgbColor extends Color {
-  constructor(colorCode: string) {
-    super(colorCode);
+class RgbParser implements ColorParser {
+  private colorCode: string = '';
+
+  parse(colorCode: string): RgbComponents<number> {
+    this.colorCode = colorCode.replace('#', '');
+    return this.getRgbComponentsInDecimal();
+  }
+
+  private getRgbComponentsInDecimal(): RgbComponents<number> {
+    const rgb = this.colorCode.match(/([0-9]{1,3})/g) as RegExpExecArray;
+    const [r, g, b] = rgb.map(Number);
+
+    return { r, g, b };
+  }
+}
+
+class RgbColorValidator implements ColorValidator {
+  validate(colorCode: string): boolean {
+    colorCode = colorCode.replaceAll(' ', '');
+
+    const hasRgbDelimiters = () => !!colorCode.match(/^rgb\(.+\)$/);
+    const hasExactlyThreePositiveNumbers = () =>
+      colorCode.match(/[(,][0-9]+/g)?.length === 3;
+    const hasExactlyThreeNumbersBetweenZeroAnd255 = () =>
+      colorCode.match(/\b([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])\b/g)?.length ===
+      3;
+
+    return (
+      hasRgbDelimiters() &&
+      hasExactlyThreePositiveNumbers() &&
+      hasExactlyThreeNumbersBetweenZeroAnd255()
+    );
+  }
+}
+
+interface ColorHandler {
+  validator: ColorValidator;
+  parser: ColorParser;
+}
+
+export class ColorBuilder {
+  private static hex: ColorHandler = {
+    validator: new HexColorValidator(),
+    parser: new HexParser(),
+  };
+  private static rgb: ColorHandler = {
+    validator: new RgbColorValidator(),
+    parser: new RgbParser(),
+  };
+
+  private static handlers: ColorHandler[] = [this.hex, this.rgb];
+
+  static build(colorCode: string): Color {
+    const handler = this.handlers.find(({ validator }) =>
+      validator.validate(colorCode),
+    );
+
+    if (!handler)
+      throw new Error(
+        `Couldn't identify the type of color code '${colorCode}'`,
+      );
+
+    return new ColorImpl(handler.parser.parse(colorCode));
+  }
+}
+
+export abstract class Color {
+  protected color: RgbComponents<number>;
+  constructor(color: RgbComponents<number>) {
+    this.color = color;
+  }
+
+  static new(colorCode: string) {
+    return ColorBuilder.build(colorCode);
+  }
+
+  abstract hex(): string;
+  abstract rgb(): string;
+}
+export class ColorImpl extends Color {
+  constructor(color: RgbComponents<number>) {
+    super(color);
   }
 
   rgb(): string {
-    return this.colorCode;
+    const { r, g, b } = this.color;
+    return `rgb(${r}, ${g}, ${b})`;
   }
 
   hex(): string {
     const { r, g, b } = this.getRgbComponentsInHex();
-
     return '#' + r + g + b;
   }
 
   private getRgbComponentsInHex(): RgbComponents<string> {
-    const { r, g, b } = this.getRgbComponentsInDecimal();
+    const { r, g, b } = this.color;
 
     return {
       r: this.decimalToHex(r),
@@ -141,11 +163,10 @@ class RgbColor extends Color {
   private decimalToHex(decimal: number): string {
     return decimal.toString(16).padStart(2, '0');
   }
-
-  private getRgbComponentsInDecimal(): RgbComponents<number> {
-    const rgb = this.colorCode.match(/([0-9]{1,3})/g) as RegExpExecArray;
-    const [r, g, b] = rgb.map(Number);
-
-    return { r, g, b };
-  }
 }
+
+type RgbComponents<T> = {
+  r: T;
+  g: T;
+  b: T;
+};

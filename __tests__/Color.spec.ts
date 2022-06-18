@@ -88,9 +88,9 @@ describe('Color parsing', () => {
     });
 
     test('HEX', () => {
-      expect(white.hex()).toBe('#fff');
+      expect(white.hex()).toBe('#ffffff');
       expect(black.hex()).toBe('#000000');
-      expect(gray.hex()).toBe('#222');
+      expect(gray.hex()).toBe('#222222');
       expect(cyan.hex()).toBe('#0e7490');
     });
   });
