@@ -62,11 +62,30 @@ describe('Color code validations', () => {
 });
 
 describe('Color parsing', () => {
-  it('HEX to RGB', () => {
-    const white = Color.new('#fff');
-    const black = Color.new('#000000');
+  describe('HEX to', () => {
+    it('RGB', () => {
+      const white = Color.new('#fff');
+      const black = Color.new('#000000');
+      const gray = Color.new('#222');
+      const blueOrGreenIdk = Color.new('#0c4a6e');
 
-    expect(white.rgb()).toBe('rgb(255, 255, 255)');
-    // expect(black.rgb()).toBe('rgb(0, 0, 0)');
+      expect(white.rgb()).toBe('rgb(255, 255, 255)');
+      expect(black.rgb()).toBe('rgb(0, 0, 0)');
+      expect(gray.rgb()).toBe('rgb(34, 34, 34)');
+      expect(blueOrGreenIdk.rgb()).toBe('rgb(12, 74, 110)');
+    });
+
+    it('HEX', () => {
+      const white = Color.new('#fff');
+      expect(white.rgb()).toBe('rgb(255, 255, 255)');
+    });
+  });
+
+  describe('RGB to', () => {
+    it('RGB', () => {
+      const white = 'rgb(255, 255, 255)';
+
+      expect(Color.new(white).rgb()).toBe(white);
+    });
   });
 });

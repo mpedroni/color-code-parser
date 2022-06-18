@@ -64,7 +64,35 @@ class HexColor extends Color {
   }
 
   rgb(): string {
-    return 'rgb(255, 255, 255)';
+    const { r, g, b } = this.getRgbPortions();
+
+    return `rgb(${parseInt(r, 16)}, ${parseInt(g, 16)}, ${parseInt(b, 16)})`;
+  }
+
+  private getRgbPortions(): { r: string; g: string; b: string } {
+    const colorCode = this.colorCode.replace('#', '');
+
+    if (colorCode.length === 3) {
+      const rgb = colorCode.match(/[a-f0-9]{1}/gi) as RegExpExecArray;
+
+      const [r, g, b] = rgb;
+
+      return {
+        r: r + r,
+        g: g + g,
+        b: b + b,
+      };
+    }
+
+    const rgb = colorCode.match(/[a-f0-9]{2}/gi) as RegExpExecArray;
+
+    const [r, g, b] = rgb;
+
+    return {
+      r,
+      g,
+      b,
+    };
   }
 }
 
@@ -74,6 +102,6 @@ class RgbColor extends Color {
   }
 
   rgb(): string {
-    return super.colorCode;
+    return this.colorCode;
   }
 }
