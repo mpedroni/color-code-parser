@@ -123,10 +123,29 @@ class RgbColor extends Color {
   }
 
   hex(): string {
-    const [r, g, b] = this.colorCode.match(/([0-9]{1,3})/g) as RegExpExecArray;
+    const { r, g, b } = this.getRgbComponentsInHex();
 
-    return `#${Number(r).toString(16).padStart(2, '0')}${Number(g)
-      .toString(16)
-      .padStart(2, '0')}${Number(b).toString(16).padStart(2, '0')}`;
+    return '#' + r + g + b;
+  }
+
+  private getRgbComponentsInHex(): RgbComponents<string> {
+    const { r, g, b } = this.getRgbComponentsInDecimal();
+
+    return {
+      r: this.decimalToHex(r),
+      g: this.decimalToHex(g),
+      b: this.decimalToHex(b),
+    };
+  }
+
+  private decimalToHex(decimal: number): string {
+    return decimal.toString(16).padStart(2, '0');
+  }
+
+  private getRgbComponentsInDecimal(): RgbComponents<number> {
+    const rgb = this.colorCode.match(/([0-9]{1,3})/g) as RegExpExecArray;
+    const [r, g, b] = rgb.map(Number);
+
+    return { r, g, b };
   }
 }
