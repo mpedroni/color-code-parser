@@ -56,6 +56,7 @@ export abstract class Color {
   }
 
   abstract rgb(): string;
+  abstract hex(): string;
 }
 
 type RgbComponents<T> = {
@@ -73,6 +74,10 @@ class HexColor extends Color {
   rgb(): string {
     const { r, g, b } = this.getRgbColorComponentsInDecimal();
     return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  hex(): string {
+    return '#' + this.colorCode;
   }
 
   private getRgbColorComponentsInDecimal(): RgbComponents<number> {
@@ -115,5 +120,13 @@ class RgbColor extends Color {
 
   rgb(): string {
     return this.colorCode;
+  }
+
+  hex(): string {
+    const [r, g, b] = this.colorCode.match(/([0-9]{1,3})/g) as RegExpExecArray;
+
+    return `#${Number(r).toString(16).padStart(2, '0')}${Number(g)
+      .toString(16)
+      .padStart(2, '0')}${Number(b).toString(16).padStart(2, '0')}`;
   }
 }

@@ -12,6 +12,11 @@ describe('Color code validations', () => {
       expect(Color.new('#a4e')).toBeInstanceOf(Color);
     });
 
+    it('should be case insensitive', () => {
+      expect(Color.new('#FFF')).toBeInstanceOf(Color);
+      expect(Color.new('#fff')).toBeInstanceOf(Color);
+    });
+
     it('should throws an error when the color code is invalid', () => {
       expect(() => {
         Color.new('#f0f0f0f');
@@ -62,25 +67,54 @@ describe('Color code validations', () => {
 });
 
 describe('Color parsing', () => {
-  describe('HEX to', () => {
-    it('RGB', () => {
-      const white = Color.new('#fff');
-      const black = Color.new('#000000');
-      const gray = Color.new('#222');
-      const blueOrGreenIdk = Color.new('#0c4a6e');
+  let white: Color;
+  let black: Color;
+  let gray: Color;
+  let cyan: Color;
 
+  describe('HEX to', () => {
+    beforeEach(() => {
+      white = Color.new('#fff');
+      black = Color.new('#000000');
+      gray = Color.new('#222');
+      cyan = Color.new('#0e7490');
+    });
+
+    test('RGB', () => {
       expect(white.rgb()).toBe('rgb(255, 255, 255)');
       expect(black.rgb()).toBe('rgb(0, 0, 0)');
       expect(gray.rgb()).toBe('rgb(34, 34, 34)');
-      expect(blueOrGreenIdk.rgb()).toBe('rgb(12, 74, 110)');
+      expect(cyan.rgb()).toBe('rgb(14, 116, 144)');
+    });
+
+    test('HEX', () => {
+      expect(white.hex()).toBe('#fff');
+      expect(black.hex()).toBe('#000000');
+      expect(gray.hex()).toBe('#222');
+      expect(cyan.hex()).toBe('#0e7490');
     });
   });
 
   describe('RGB to', () => {
-    it('RGB', () => {
-      const white = 'rgb(255, 255, 255)';
+    beforeEach(() => {
+      white = Color.new('rgb(255, 255, 255)');
+      black = Color.new('rgb(0, 0, 0)');
+      gray = Color.new('rgb(34, 34, 34)');
+      cyan = Color.new('rgb(14, 116, 144)');
+    });
 
-      expect(Color.new(white).rgb()).toBe(white);
+    test('HEX', () => {
+      expect(white.hex()).toBe('#ffffff');
+      expect(black.hex()).toBe('#000000');
+      expect(gray.hex()).toBe('#222222');
+      expect(cyan.hex()).toBe('#0e7490');
+    });
+
+    test('RGB', () => {
+      expect(white.rgb()).toBe('rgb(255, 255, 255)');
+      expect(black.rgb()).toBe('rgb(0, 0, 0)');
+      expect(gray.rgb()).toBe('rgb(34, 34, 34)');
+      expect(cyan.rgb()).toBe('rgb(14, 116, 144)');
     });
   });
 });
