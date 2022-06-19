@@ -1,20 +1,21 @@
-import { Color } from '../src/Color';
+import Color from '../src/lib/color-code-parser';
+import type { Color as ColorType } from '../src/colors/@types';
 
 describe('Color code validations', () => {
   describe('hex representation', () => {
     it('should accept the 6-digit format', () => {
-      expect(Color.new('#f3a567')).toBeInstanceOf(Color);
-      expect(Color.new('#0e3d54')).toBeInstanceOf(Color);
+      expect(Color.new('#f3a567')).toBeTruthy();
+      expect(Color.new('#0e3d54')).toBeTruthy();
     });
 
     it('should accept the 3-digit format', () => {
-      expect(Color.new('#0f0')).toBeInstanceOf(Color);
-      expect(Color.new('#a4e')).toBeInstanceOf(Color);
+      expect(Color.new('#0f0')).toBeTruthy();
+      expect(Color.new('#a4e')).toBeTruthy();
     });
 
     it('should be case insensitive', () => {
-      expect(Color.new('#FFF')).toBeInstanceOf(Color);
-      expect(Color.new('#fff')).toBeInstanceOf(Color);
+      expect(Color.new('#FFF')).toBeTruthy();
+      expect(Color.new('#fff')).toBeTruthy();
     });
 
     it('should throws an error when the color code is invalid', () => {
@@ -38,9 +39,9 @@ describe('Color code validations', () => {
 
   describe('rgb representation', () => {
     it('should accept with or without spaces format', () => {
-      expect(Color.new('rgb(255, 255, 255)')).toBeInstanceOf(Color);
-      expect(Color.new('rgb(255,255,255)')).toBeInstanceOf(Color);
-      expect(Color.new('rgb(0, 73,255)')).toBeInstanceOf(Color);
+      expect(Color.new('rgb(255, 255, 255)')).toBeTruthy();
+      expect(Color.new('rgb(255,255,255)')).toBeTruthy();
+      expect(Color.new('rgb(0, 73,255)')).toBeTruthy();
     });
 
     it('should throws an error when the color code is invalid', () => {
@@ -67,10 +68,10 @@ describe('Color code validations', () => {
 });
 
 describe('Color parsing', () => {
-  let white: Color;
-  let black: Color;
-  let gray: Color;
-  let cyan: Color;
+  let white: ColorType;
+  let black: ColorType;
+  let gray: ColorType;
+  let cyan: ColorType;
 
   describe('HEX to', () => {
     beforeEach(() => {
