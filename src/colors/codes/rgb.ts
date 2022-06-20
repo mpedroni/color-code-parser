@@ -1,12 +1,12 @@
 import { RgbComponents } from '../@types';
-import { ColorParser } from '../parser';
+import { ColorCodeTransformer } from '../transformer';
 
-export class RgbParser implements ColorParser {
-  private colorCode: string = '';
+export class RgbTransformer implements ColorCodeTransformer {
+  getRgbComponentsInDecimal(colorCode: string): RgbComponents<number> {
+    const rgb = colorCode.match(/([0-9]{1,3})/g) as RegExpExecArray;
+    const [r, g, b] = rgb.map(Number);
 
-  parse(colorCode: string): RgbComponents<number> {
-    this.colorCode = colorCode.replace('#', '');
-    return this.getRgbComponentsInDecimal();
+    return { r, g, b };
   }
 
   validate(colorCode: string): boolean {
@@ -24,12 +24,5 @@ export class RgbParser implements ColorParser {
       hasExactlyThreePositiveNumbers() &&
       hasExactlyThreeNumbersBetweenZeroAnd255()
     );
-  }
-
-  private getRgbComponentsInDecimal(): RgbComponents<number> {
-    const rgb = this.colorCode.match(/([0-9]{1,3})/g) as RegExpExecArray;
-    const [r, g, b] = rgb.map(Number);
-
-    return { r, g, b };
   }
 }

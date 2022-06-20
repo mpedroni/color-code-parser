@@ -1,23 +1,9 @@
 import { RgbComponents } from '../@types';
-import { ColorParser } from '../parser';
+import { ColorCodeTransformer } from '../transformer';
 
-export class HexParser implements ColorParser {
-  private colorCode: string = '';
-
-  parse(colorCode: string): RgbComponents<number> {
-    this.colorCode = colorCode.replace('#', '');
-    return this.getRgbComponentsInDecimal();
-  }
-
-  validate(colorCode: string): boolean {
-    colorCode = colorCode.replaceAll(' ', '');
-    const hexColorCodeRegex = /^#[a-f0-9]{3,6}$/gi;
-
-    return !!colorCode.match(hexColorCodeRegex);
-  }
-
-  private getRgbComponentsInDecimal(): RgbComponents<number> {
-    const { r, g, b } = this.getRgbComponentsInHex();
+export class HexTransformer implements ColorCodeTransformer {
+  getRgbComponentsInDecimal(colorCode: string): RgbComponents<number> {
+    const { r, g, b } = this.getRgbComponentsInHex(colorCode);
 
     return {
       r: this.hexToDecimal(r),
@@ -26,12 +12,21 @@ export class HexParser implements ColorParser {
     };
   }
 
-  private getRgbComponentsInHex(): RgbComponents<string> {
-    const pattern = this.isShortNotation() ? /[a-f0-9]{1}/gi : /[a-f0-9]{2}/gi;
+  validate(colorCode: string): boolean {
+    const hexColorCodeRegex = /^#[a-f0-9]{3,6}$/gi;
+    return !!colorCode.match(hexColorCodeRegex);
+  }
 
-    const [r, g, b] = this.colorCode.match(pattern) as RegExpExecArray;
+  private getRgbComponentsInHex(colorCode: string): RgbComponents<string> {
+    colorCode = colorCode.replace('#', '');
 
-    return this.isShortNotation()
+    const pattern = this.isShortNotation(colorCode)
+      ? /[a-f0-9]{1}/gi
+      : /[a-f0-9]{2}/gi;
+
+    const [r, g, b] = colorCode.match(pattern) as RegExpExecArray;
+
+    return this.isShortNotation(colorCode)
       ? {
           r: r + r,
           g: g + g,
@@ -44,7 +39,7 @@ export class HexParser implements ColorParser {
     return parseInt(hex, 16);
   }
 
-  private isShortNotation(): boolean {
-    return this.colorCode.length === 3;
+  private isShortNotation(colorCode: string): boolean {
+    return colorCode.length === 3;
   }
 }
