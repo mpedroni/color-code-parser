@@ -1,5 +1,4 @@
 import Color from '../src/lib/color-code-parser';
-import type { Color as ColorType } from '../src/colors/@types';
 
 describe('Color code validations', () => {
   describe('hex', () => {
@@ -79,54 +78,42 @@ describe('Color code validations', () => {
 });
 
 describe('Color parsing', () => {
-  let white: ColorType;
-  let black: ColorType;
-  let gray: ColorType;
-  let cyan: ColorType;
+  const colors = [
+    { hex: '#ffffff', rgb: 'rgb(255, 255, 255)' },
+    { hex: '#000000', rgb: 'rgb(0, 0, 0)' },
+    { hex: '#222222', rgb: 'rgb(34, 34, 34)' },
+    { hex: '#0e7490', rgb: 'rgb(14, 116, 144)' },
+  ];
 
   describe('HEX to', () => {
-    beforeEach(() => {
-      white = Color.new('#fff');
-      black = Color.new('#000000');
-      gray = Color.new('#222');
-      cyan = Color.new('#0e7490');
-    });
-
     test('RGB', () => {
-      expect(white.rgb()).toBe('rgb(255, 255, 255)');
-      expect(black.rgb()).toBe('rgb(0, 0, 0)');
-      expect(gray.rgb()).toBe('rgb(34, 34, 34)');
-      expect(cyan.rgb()).toBe('rgb(14, 116, 144)');
+      for (const color of colors) {
+        const rgb = Color.new(color.hex).rgb();
+        expect(rgb).toBe(color.rgb);
+      }
     });
 
     test('HEX', () => {
-      expect(white.hex()).toBe('#ffffff');
-      expect(black.hex()).toBe('#000000');
-      expect(gray.hex()).toBe('#222222');
-      expect(cyan.hex()).toBe('#0e7490');
+      for (const color of colors) {
+        const hex = Color.new(color.hex).hex();
+        expect(hex).toBe(color.hex);
+      }
     });
   });
 
   describe('RGB to', () => {
-    beforeEach(() => {
-      white = Color.new('rgb(255, 255, 255)');
-      black = Color.new('rgb(0, 0, 0)');
-      gray = Color.new('rgb(34, 34, 34)');
-      cyan = Color.new('rgb(14, 116, 144)');
-    });
-
     test('HEX', () => {
-      expect(white.hex()).toBe('#ffffff');
-      expect(black.hex()).toBe('#000000');
-      expect(gray.hex()).toBe('#222222');
-      expect(cyan.hex()).toBe('#0e7490');
+      for (const color of colors) {
+        const hex = Color.new(color.rgb).hex();
+        expect(hex).toBe(color.hex);
+      }
     });
 
     test('RGB', () => {
-      expect(white.rgb()).toBe('rgb(255, 255, 255)');
-      expect(black.rgb()).toBe('rgb(0, 0, 0)');
-      expect(gray.rgb()).toBe('rgb(34, 34, 34)');
-      expect(cyan.rgb()).toBe('rgb(14, 116, 144)');
+      for (const color of colors) {
+        const rgb = Color.new(color.rgb).rgb();
+        expect(rgb).toBe(color.rgb);
+      }
     });
   });
 });
