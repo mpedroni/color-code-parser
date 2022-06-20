@@ -2,20 +2,19 @@ import Color from '../src/lib/color-code-parser';
 import type { Color as ColorType } from '../src/colors/@types';
 
 describe('Color code validations', () => {
-  describe('hex representation', () => {
-    it('should accept the 6-digit format', () => {
-      expect(Color.new('#f3a567')).toBeTruthy();
-      expect(Color.new('#0e3d54')).toBeTruthy();
+  describe('hex', () => {
+    it('should accept 6-digit notation', () => {
+      expect(Color.new('#222222').hex()).toBeTruthy();
     });
 
-    it('should accept the 3-digit format', () => {
-      expect(Color.new('#0f0')).toBeTruthy();
-      expect(Color.new('#a4e')).toBeTruthy();
+    it('should accept 3-digit notation', () => {
+      expect(Color.new('#222').hex()).toBeTruthy();
     });
 
     it('should be case insensitive', () => {
-      expect(Color.new('#FFF')).toBeTruthy();
-      expect(Color.new('#fff')).toBeTruthy();
+      expect(Color.new('#aaaaaa').hex()).toBeTruthy();
+      expect(Color.new('#AAA').hex()).toBeTruthy();
+      expect(Color.new('#AfA').hex()).toBeTruthy();
     });
 
     it('should throws an error when the color code is invalid', () => {
@@ -37,31 +36,43 @@ describe('Color code validations', () => {
     });
   });
 
-  describe('rgb representation', () => {
-    it('should accept with or without spaces format', () => {
-      expect(Color.new('rgb(255, 255, 255)')).toBeTruthy();
-      expect(Color.new('rgb(255,255,255)')).toBeTruthy();
-      expect(Color.new('rgb(0, 73,255)')).toBeTruthy();
+  describe('rgb', () => {
+    it('should accept with and without spaces format', () => {
+      expect(Color.new('rgb(42, 42, 42)')).toBeTruthy();
+      expect(Color.new('rgb(42,42,42)')).toBeTruthy();
+      expect(Color.new('rgb( 42,42, 42)')).toBeTruthy();
     });
 
-    it('should throws an error when the color code is invalid', () => {
+    it('should throws an error if any of RGB component is out of range 0-255', () => {
       expect(() => {
-        Color.new('rgb(256, 256, 256)');
-      }).toThrowError();
-      expect(() => {
-        Color.new('rgb(256, 256)');
+        Color.new('rgb(0, 256, 0)');
       }).toThrowError();
       expect(() => {
         Color.new('rgb(0, 0, -1)');
+      }).toThrowError();
+    });
+
+    it('should throws an error if any of RGB component is missing', () => {
+      expect(() => {
+        Color.new('rgb(256, 256)');
       }).toThrowError();
       expect(() => {
         Color.new('rgb()');
       }).toThrowError();
       expect(() => {
+        Color.new('rgb(40)');
+      }).toThrowError();
+    });
+
+    it('should throws an error when the color code is invalid', () => {
+      expect(() => {
         Color.new('rgb 255, 0, 255');
       }).toThrowError();
       expect(() => {
         Color.new('rgb(40, 40, 40)a');
+      }).toThrowError();
+      expect(() => {
+        Color.new('rgb(abc, a40, 40)');
       }).toThrowError();
     });
   });
