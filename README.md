@@ -19,6 +19,8 @@ Basically, you create an `Color` instance passing a color code in any supported 
 
 ```ts
 const white = Color.new('#fff');
+
+white.hex(); // => #ffffff
 white.rgb(); // => rgb(255, 255, 255)
 white.hsl(); // => hsl(0, 0%, 100%)
 ```
